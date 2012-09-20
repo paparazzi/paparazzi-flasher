@@ -36,6 +36,11 @@ DFUManager::DFUManager(QObject *parent) :
     timer.setInterval(2000);
     connect(&timer, SIGNAL(timeout()), this, SLOT(findIFace()));
     handle = NULL;
+
+    block_size = 1024;
+    flash_size_mutex.lock();
+    flash_size = 0x20000; /* 128kb */
+    flash_size_mutex.unlock();
 }
 
 DFUManager::~DFUManager()
@@ -124,19 +129,34 @@ struct usb_device *DFUManager::findDev()
             if (((dev->descriptor.idProduct == 0x5740) ||
                  (dev->descriptor.idProduct == 0x6018)) &&
                     !strcmp(man, "Black Sphere Technologies") &&
-                    !strcmp(prod, "Black Magic Firmware Upgrade"))
+                    !strcmp(prod, "Black Magic Firmware Upgrade")) {
+                block_size = 1024;
+                flash_size_mutex.lock();
+                flash_size = 0x20000; /* 128kb */
+                flash_size_mutex.unlock();
                 return dev;
+            }
 
             if (((dev->descriptor.idProduct == 0xDF11) ||
                  (dev->descriptor.idProduct == 0x6017)) &&
                     !strcmp(man, "Black Sphere Technologies") &&
-                    !strcmp(prod, "Black Magic Probe (Upgrade)"))
+                    !strcmp(prod, "Black Magic Probe (Upgrade)")) {
+                block_size = 1024;
+                flash_size_mutex.lock();
+                flash_size = 0x20000; /* 128kb */
+                flash_size_mutex.unlock();
                 return dev;
+            }
 
             if (((dev->descriptor.idProduct == 0x600F)) &&
                     !strcmp(man, "Transition Robotics Inc.") &&
-                    !strcmp(prod, "Lisa/M (Upgrade) V1.0"))
+                    !strcmp(prod, "Lisa/M (Upgrade) V1.0")) {
+                block_size = 2048;
+                flash_size_mutex.lock();
+                flash_size = 0x40000; /* 256kb */
+                flash_size_mutex.unlock();
                 return dev;
+            }
         }
     }
     return NULL;
@@ -194,23 +214,23 @@ void DFUManager::flash(QString *filename)
 
     qDebug() << "Opened file " << *filename << " and read " << binfile_content.size() << " bytes?";
 
-    //dfu_makeidle(handle, iface);
+    dfu_makeidle(handle, iface);
 
-    for (bindata_offset = 0; bindata_offset < binfile_content.size(); bindata_offset += 2048) {
+    for (bindata_offset = 0; bindata_offset < binfile_content.size(); bindata_offset += block_size) {
         emit flashProgressUpdate((bindata_offset*100)/binfile_content.size());
         if (stm32_mem_erase(handle, iface, LOAD_ADDRESS + bindata_offset) != 0) {
             /* TODO: emit error */
 
             binfile.close();
 
-            delete(filename);
+            //delete(filename);
 
             emit finishedFlash();
 
             timer.start();
         }
 
-        stm32_mem_write(handle, iface, (void*)&binfile_content.data()[bindata_offset], 2048);
+        stm32_mem_write(handle, iface, (void*)&binfile_content.data()[bindata_offset], block_size);
 
     }
 
@@ -227,4 +247,15 @@ void DFUManager::flash(QString *filename)
     emit finishedFlash();
 
     timer.start();
+}
+
+int DFUManager::get_flash_size()
+{
+    int size;
+
+    flash_size_mutex.lock();
+    size = flash_size;
+    flash_size_mutex.unlock();
+
+    return size;
 }

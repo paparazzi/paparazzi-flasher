@@ -112,6 +112,13 @@ void MainWindow::flash()
         return;
     }
 
+    if (binary_info.size() > dfu_manager.get_flash_size()) {
+        qDebug() << "File is too big!";
+        error_message.showMessage(QString("The file size is too big! Max size is %1kb!").arg(dfu_manager.get_flash_size()/1024));
+        error_message.exec();
+        return;
+    }
+
     ui->progressBar->setValue(0);
     ui->progressBar->show();
 

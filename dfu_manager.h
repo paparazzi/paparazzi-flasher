@@ -22,6 +22,7 @@
 
 #include <QObject>
 #include <QTimer>
+#include <QMutex>
 
 #include "upgrade/dfu.h"
 
@@ -31,6 +32,7 @@ class DFUManager : public QObject
 public:
     explicit DFUManager(QObject *parent = 0);
     ~DFUManager();
+    int get_flash_size();
 
 private:
     QTimer timer;
@@ -38,6 +40,9 @@ private:
     struct usb_dev_handle *handle;
     uint16_t iface;
     int state;
+    int block_size;
+    QMutex flash_size_mutex;
+    int flash_size;
 
     struct usb_device *findDev(void);
     struct usb_dev_handle *getDFUIface(struct usb_device *dev, uint16_t *interface);
