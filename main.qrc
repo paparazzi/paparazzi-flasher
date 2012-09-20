@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>icons/open.png</file>
+        <file>icons/ppz_logo.png</file>
     </qresource>
 </RCC>
