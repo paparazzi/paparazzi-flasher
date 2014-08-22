@@ -20,11 +20,12 @@
 #ifndef DFU_MANAGER_H
 #define DFU_MANAGER_H
 
+#include "upgrade/dfu.h"
+
 #include <QObject>
 #include <QTimer>
 #include <QMutex>
 
-#include "upgrade/dfu.h"
 
 class DFUManager : public QObject
 {

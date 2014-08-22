@@ -20,8 +20,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
 #include "dfu_manager.h"
+#include <QMainWindow>
 #include <QThread>
 
 namespace Ui {
