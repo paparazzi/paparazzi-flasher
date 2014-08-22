@@ -44,7 +44,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(&dfu_manager, SIGNAL(lostDevice()), this, SLOT(lostDevice()));
     connect(&dfu_thread, SIGNAL(started()), &dfu_manager, SLOT(start()));
     connect(&dfu_manager, SIGNAL(finishedFlash()), this, SLOT(finishedFlash()));
-    connect(&dfu_manager, SIGNAL(flashProgressUpdate(int)), this, SLOT(onFlashProgressUpdate(int)));
+    connect(&dfu_manager, SIGNAL(flashProgressUpdate(int, int)), this, SLOT(onFlashProgressUpdate(int, int)));
     connect(this, SIGNAL(doFlash(QString*)), &dfu_manager, SLOT(flash(QString*)));
 
     dfu_thread.start();
@@ -131,7 +131,8 @@ void MainWindow::finishedFlash()
     ui->label_Iface->setText("Done Flashing!");
 }
 
-void MainWindow::onFlashProgressUpdate(int percent)
+void MainWindow::onFlashProgressUpdate(int address, int percent)
 {
+    ui->label_Iface->setText(QString("Flashing address 0x%1 %2%").arg(QString::number(address, 16)).arg(percent));
     ui->progressBar->setValue(percent);
 }

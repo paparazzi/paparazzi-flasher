@@ -51,7 +51,7 @@ private slots:
     void lostDevice();
     void flash();
     void finishedFlash();
-    void onFlashProgressUpdate(int percent);
+    void onFlashProgressUpdate(int address, int percent);
 };
 
 #endif // MAINWINDOW_H

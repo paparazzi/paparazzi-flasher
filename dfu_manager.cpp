@@ -217,7 +217,7 @@ void DFUManager::flash(QString *filename)
     dfu_makeidle(handle, iface);
 
     for (bindata_offset = 0; bindata_offset < binfile_content.size(); bindata_offset += block_size) {
-        emit flashProgressUpdate((bindata_offset*100)/binfile_content.size());
+        emit flashProgressUpdate(LOAD_ADDRESS + bindata_offset, (bindata_offset*100)/binfile_content.size());
         if (stm32_mem_erase(handle, iface, LOAD_ADDRESS + bindata_offset) != 0) {
             /* TODO: emit error */
 

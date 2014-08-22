@@ -51,7 +51,7 @@ signals:
     void foundDevice(QString *string);
     void lostDevice();
     void finishedFlash();
-    void flashProgressUpdate(int percentage);
+    void flashProgressUpdate(int address, int percentage);
     
 private slots:
     void findIFace();
